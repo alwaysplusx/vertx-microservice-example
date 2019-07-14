@@ -1,0 +1,28 @@
+= Cheatsheets
+
+[[Account]]
+== Account
+
+
+[cols=">25%,25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[email]]`@email`|`String`|-
+|[[id]]`@id`|`Number (Long)`|-
+|[[name]]`@name`|`String`|-
+|[[phone]]`@phone`|`String`|-
+|===
+
+[[Order]]
+== Order
+
+
+[cols=">25%,25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[id]]`@id`|`Number (Long)`|-
+|[[serialNumber]]`@serialNumber`|`String`|-
+|===
+
