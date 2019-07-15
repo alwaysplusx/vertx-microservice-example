@@ -35,7 +35,10 @@ public class RestOrderVerticle extends BaseVerticle {
 
         EventBusService.getProxy(serviceDiscovery, AccountService.class, ar -> {
             if (ar.succeeded()) {
-                ar.result().getAccountByName("foo", e -> log.info(e.toString()));
+                AccountService proxyService = ar.result();
+                proxyService.getAccountByName("foo", e -> {
+                    log.info("get account from event bus proxy service {}, result is {}", proxyService, e.result());
+                });
             } else {
                 log.error("can't find event bus service proxy", ar.cause());
             }
