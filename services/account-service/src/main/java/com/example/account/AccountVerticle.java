@@ -2,14 +2,14 @@ package com.example.account;
 
 import com.example.account.controller.RestAccountVerticle;
 import com.example.account.impl.AccountServiceImpl;
-import com.example.common.BaseVerticle;
+import com.example.common.MicroserviceVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.types.EventBusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccountVerticle extends BaseVerticle {
+public class AccountVerticle extends MicroserviceVerticle {
 
     private AccountService accountService;
 

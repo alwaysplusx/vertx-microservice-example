@@ -10,14 +10,17 @@ import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.ServiceDiscoveryOptions;
 import io.vertx.serviceproxy.ServiceBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-public abstract class BaseVerticle extends AbstractVerticle {
+public abstract class MicroserviceVerticle extends AbstractVerticle {
 
+    private static final Logger log = LoggerFactory.getLogger(MicroserviceVerticle.class);
     protected ServiceDiscovery serviceDiscovery;
-    private CircuitBreaker circuitBreaker;
-    protected Set<Record> registeredRecords = new ConcurrentHashSet<>();
+    protected CircuitBreaker circuitBreaker;
+    private Set<Record> registeredRecords = new ConcurrentHashSet<>();
 
     @Override
     public final void start() throws Exception {
@@ -26,8 +29,29 @@ public abstract class BaseVerticle extends AbstractVerticle {
         doStart();
     }
 
+    @Override
+    public void stop() throws Exception {
+        registeredRecords.forEach(e -> serviceDiscovery.unpublish(e.getRegistration(),
+                ar -> {
+                    if (ar.succeeded()) {
+                        log.info("unpublish service {}", e);
+                    } else {
+                        log.error("unpublish service failed. {}", e, ar.cause());
+                    }
+                }));
+    }
+
     private void init() throws Exception {
-        this.serviceDiscovery = ServiceDiscovery.create(vertx, new ServiceDiscoveryOptions().setBackendConfiguration(config()));
+        JsonObject defaultConfig = new JsonObject()
+                .put("host", "localhost")
+                .put("key", "vertx:records");
+
+        this.serviceDiscovery = ServiceDiscovery
+                .create(vertx,
+                        new ServiceDiscoveryOptions()
+                                .setBackendConfiguration(config().mergeIn(defaultConfig))
+                );
+
 //                .registerServiceImporter(
 //                        new ConsulServiceImporter(),
 //                        new JsonObject().put("host", "localhost").put("port", 8500).put("scan-period", 2000)
@@ -43,7 +67,18 @@ public abstract class BaseVerticle extends AbstractVerticle {
                         .setTimeout(cbOptions.getLong("timeout", 10000L))
                         .setFallbackOnFailure(true)
                         .setResetTimeout(cbOptions.getLong("reset-timeout", 30000L))
-        );
+        ).openHandler(e -> {
+            //
+        }).closeHandler(e -> {
+            //
+        }).halfOpenHandler(e -> {
+            //
+        }).retryPolicy(times -> times * 100l);
+
+        // TODO create shutdown vertx http-endpoint, exception CONNECTION_CLOSED
+        // vertx.createHttpServer()
+        //        .requestHandler(ar -> vertx.close())
+        //        .listen(9090);
     }
 
     protected void doStart() throws Exception {

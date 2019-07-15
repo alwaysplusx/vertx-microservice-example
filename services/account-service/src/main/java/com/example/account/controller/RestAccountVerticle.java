@@ -1,11 +1,19 @@
 package com.example.account.controller;
 
+import brave.Tracing;
+import brave.sampler.Sampler;
+import brave.vertx.web.VertxWebTracing;
 import com.example.account.AccountService;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import zipkin2.reporter.Reporter;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class RestAccountVerticle extends AbstractVerticle {
 
@@ -17,7 +25,15 @@ public class RestAccountVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
+
+        Handler<RoutingContext> routingContextHandler = VertxWebTracing.create(buildTracing())
+                .routingContextHandler();
+
         Router router = Router.router(vertx);
+        router.route()
+                .order(-1)
+                .handler(routingContextHandler)
+                .failureHandler(routingContextHandler);
 
         router.route().handler(BodyHandler.create());
         router.get("/account/:name")
@@ -38,6 +54,16 @@ public class RestAccountVerticle extends AbstractVerticle {
                 routingContext.response().end("Error");
             }
         });
+    }
+
+    // TODO 异步改造, reporter升级为写队列?
+    private Tracing buildTracing() throws UnknownHostException {
+        return Tracing.newBuilder()
+                .localIp(InetAddress.getLocalHost().getHostAddress())
+                .localServiceName(AccountService.SERVICE_NAME)
+                .sampler(Sampler.ALWAYS_SAMPLE)
+                .spanReporter(Reporter.CONSOLE)
+                .build();
     }
 
 }

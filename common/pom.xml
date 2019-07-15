@@ -62,9 +62,14 @@
             <artifactId>vertx-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-hazelcast</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.26</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>io.vertx</groupId>-->
+            <!--<artifactId>vertx-hazelcast</artifactId>-->
+        <!--</dependency>-->
         <!--
         <dependency>
             <groupId>io.vertx</groupId>
@@ -92,6 +97,10 @@
             <artifactId>vertx-service-discovery-bridge-consul</artifactId>
         </dependency>
         -->
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-service-discovery-backend-redis</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-config</artifactId>
