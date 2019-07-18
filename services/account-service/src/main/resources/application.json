@@ -1,0 +1,9 @@
+{
+  "service-discovery": {
+    "host": "localhost",
+    "key": "vertx:records"
+  },
+  "deployment": {
+    "foo": "bar"
+  }
+}

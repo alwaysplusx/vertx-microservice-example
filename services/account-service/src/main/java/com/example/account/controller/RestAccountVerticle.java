@@ -10,12 +10,15 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import zipkin2.reporter.Reporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class RestAccountVerticle extends AbstractVerticle {
+
+    private static final Logger log = LoggerFactory.getLogger(RestAccountVerticle.class);
 
     private final AccountService accountService;
 
@@ -26,7 +29,8 @@ public class RestAccountVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
 
-        Handler<RoutingContext> routingContextHandler = VertxWebTracing.create(buildTracing())
+        Handler<RoutingContext> routingContextHandler = VertxWebTracing
+                .create(buildTracing())
                 .routingContextHandler();
 
         Router router = Router.router(vertx);
@@ -56,13 +60,13 @@ public class RestAccountVerticle extends AbstractVerticle {
         });
     }
 
-    // TODO 异步改造, reporter升级为写队列?
+    // TODO WEB-TRACING 异步改造, reporter升级为写队列?
     private Tracing buildTracing() throws UnknownHostException {
         return Tracing.newBuilder()
                 .localIp(InetAddress.getLocalHost().getHostAddress())
                 .localServiceName(AccountService.SERVICE_NAME)
                 .sampler(Sampler.ALWAYS_SAMPLE)
-                .spanReporter(Reporter.CONSOLE)
+                .spanReporter(e -> log.info("tracing info: {}", e))
                 .build();
     }
 

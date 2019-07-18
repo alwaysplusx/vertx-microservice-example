@@ -42,6 +42,8 @@ public abstract class MicroserviceVerticle extends AbstractVerticle {
     }
 
     private void init() throws Exception {
+        config().getJsonObject("service-discovery");
+
         JsonObject defaultConfig = new JsonObject()
                 .put("host", "localhost")
                 .put("key", "vertx:records");
